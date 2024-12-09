@@ -1,0 +1,75 @@
+---
+title: "HW class6 (R functions)"
+author: "Audrey Ting Zhu (A16898668)"
+date: "2024-10-21"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+
+
+```{r}
+install.packages("bio3d")
+```
+This is the code we need to simplify. There is a slight error, which I have edited. 
+```{r}
+library(bio3d)
+ s1 <- read.pdb("4AKE")  # kinase with drug
+ s2 <- read.pdb("1AKE")  # kinase no drug
+ s3 <- read.pdb("1E4Y")  # kinase with drug
+ s1.chainA <- trim.pdb(s1, chain="A", elety="CA")
+ s2.chainA <- trim.pdb(s2, chain="A", elety="CA")
+ s3.chainA <- trim.pdb(s3, chain="A", elety="CA")#error: I changed s1 to s3
+ s1.b <- s1.chainA$atom$b
+ s2.b <- s2.chainA$atom$b
+ s3.b <- s3.chainA$atom$b
+ plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor") 
+plotb3(s2.b, sse=s2.chainA, typ="l", ylab="Bfactor") 
+plotb3(s3.b, sse=s3.chainA, typ="l", ylab="Bfactor")
+```
+
+We want to simplify the above code.
+
+We first extract the snippets of code. 
+
+```{r}
+#' @Title Plotting B factor Vs. Residue for different Kinases
+#'
+#' @param   pdb_id (this is the name of the information database for the kinase)
+#'
+#' @return It returns a plot that shows the b factor for the residues in a kinase. The b factor shows the mobility of the protein in these residue regions.
+#' @export
+#'
+#' @examples 
+#' plot_Bfactor("4AKE") Put the PDB object in quotations and pass it through the function.
+#' 
+#' 
+plot_Bfactor <- function(pdb_id) {
+  
+  #'Save pdb file information into protein
+  protein <- read.pdb(pdb_id)
+  
+  #'Extract information from specific pdb file, specifically alpha carbons of the chain A. The elety allows us to choose specific information, to simplify the analysis.
+  protein.chainA<-trim.pdb(protein, chain="A", elety="CA")
+  
+  #'Extract information of B factors that align with data for chain A into protein.b
+  protein.b <- protein.chainA$atom$b
+  
+  #'Plot out the information: typ="l" makes it a line plot, ylab="Bfactor" gives the label for the y-axis, sse annotates the secondary structure (see bars on the top and bottom of the plot)
+  plotb3(protein.b, sse=protein.chainA, typ="l", ylab="Bfactor")
+}
+```
+
+Now we test our code:
+```{r}
+plot_Bfactor("4AKE") 
+plot_Bfactor("1AKE") 
+plot_Bfactor("1E4Y") 
+```
+
+
+
+
+
