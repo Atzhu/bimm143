@@ -1,0 +1,120 @@
+---
+title: "class05"
+author: "Audrey Ting Zhu(A16898668)"
+format: pdf
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this 
+
+```{r}
+#| echo: false
+2 * 2
+```
+All ggplot figures have a least 3 layers:
+The `echo: false` option disables the printing of code (only output is displayed).
+-data
+-aes(how the data map to the plot)
+-geoms(how we draw the plot, lines, points,etc.)
+
+Before I use any new package I need to download and install it with the 'intstall.packages()' command.
+
+I will never use 'install.package()' within my quarto document otherwise I will insall the package over and over again. 
+
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+
+ggplot(cars)+ 
+aes(x=speed, y=dist) + geom_point()
+
+```
+#For which phases is data visualization important in our scientific workflows? ANS:All of the above
+
+#True or False? The ggplot2 package comes already installed with R? ANS: FALSE
+# Which plot types are typically NOT used to compare distributions of numeric variables? ANS:Network graphs
+
+#Which statement about data visualization with ggplot2 is incorrect? ANS:ggplot2 is the only way to create plots in R
+
+#Which geometric layer should be used to create scatter plots in ggplot2? ANS: geom_point()
+
+#In your own RStudio can you add a trend line layer to help show the relationship between the plot variables with the geom_smooth() function?
+```{r}
+library(ggplot2)
+ggplot(cars)+ 
+aes(x=speed, y=dist) + geom_point()+ geom_smooth()
+```
+#Argue with geom_smooth() to add a straight line from a linear model without the shaded standard error region?
+```{r}
+library(ggplot2)
+ggplot(cars)+ 
+aes(x=speed, y=dist) + geom_point()+ geom_smooth(method="lm", se=FALSE)
+```
+#Can you finish this plot by adding various label annotations with the labs() function and changing the plot look to a more conservative “black & white” theme by adding the theme_bw() function:
+```{r}
+library(ggplot2)
+ggplot(cars)+ 
+aes(x=speed, y=dist)+ geom_point()+labs(title= "speed and stopping distance of cars",x="speed(MPH)", y="stopping distance(ft)", subtitle="correlation",caption="Dataset:cars")+ geom_smooth(method="lm", se=FALSE) + theme_bw()
+```
+
+
+```{r}
+url <- "https://bioboot.github.io/bimm143_S20/class-material/up_down_expression.txt"
+genes <- read.delim(url)
+head(genes)
+```
+
+#Use the nrow() function to find out how many genes are in this dataset. What is your answer? ANS: 5196 genes
+```{r}
+nrow(genes)
+```
+
+#Use the colnames() function and the ncol() function on the genes data frame to find out what the column names are (we will need these later) and how many columns there are. How many columns did you find? ANS: The column names are"Gene"       "Condition1" "Condition2" "State". The number of columns is 4.
+```{r}
+colnames(genes)
+ncol(genes)
+```
+#Using your values above and 2 significant figures. What fraction of total genes is up-regulated in this dataset?ANS:2.44 upregulated
+```{r}
+round( table(genes$State)/nrow(genes) * 100, 2 )
+
+```
+#Complete the code below to produce the following plot
+```{r}
+library(ggplot2)
+ggplot(genes) + 
+    aes(x=Condition1, y=Condition2)+geom_point()
+```
+
+```{r}
+p<-ggplot(genes) + 
+    aes(x=Condition1, y=Condition2,col=State)+geom_point()
+p
+```
+
+#Nice, now add some plot annotations to the p object with the labs() function so your plot looks like the following:
+```{r}
+p<-ggplot(genes) + aes(x=Condition1,y=Condition2,col=State)+geom_point()
+p + scale_colour_manual(values=c("blue","gray","red")) +
+    labs(title="Gene Expresion Changes Upon Drug Treatment",
+         x="Control (no drug) ",
+         y="Drug Treatment")
+```
+
+
+
+
+
+
+
