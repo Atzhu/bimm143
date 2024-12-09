@@ -1,0 +1,205 @@
+---
+title: "Machine Learning 1"
+author: "Audrey Ting Zhu (A16898668)"
+date: "2024-10-27"
+output: pdf_document
+---
+#First up kmeans()
+Demo od using kmeans()function in base R. First make up data.
+```{r}
+tmp<-c(rnorm(30,-3),rnorm(30,3))
+x<-cbind(x=tmp,y=rev(tmp))
+plot(x)
+```
+
+
+Now we have some made up data in x. Let's see how kmeans works with this data. 
+
+
+```{r}
+k<-kmeans(x, centers=2,nstart=20)
+k
+```
+
+>How many points in each cluster?
+
+```{r}
+k$size
+
+```
+
+>How do we get to the cluster membership?
+
+```{r}
+k$cluster
+```
+
+>What about cluster centers?
+
+```{r}
+k$centers
+```
+
+Now we have main results, we use them to plot our data.
+
+
+```{r}
+plot(x, col=k$cluster)
+points(k$centers, col="blue", pch=15)
+```
+
+##Now for hclust(), we will cluster the same data "x" with the hclust(). This requires a distance matrix.
+
+```{r}
+hc<-hclust(dist(x))
+hc
+
+```
+Let's plot
+
+```{r}
+plot(hc)
+```
+
+Get cluster membership, cut with cutree()
+
+
+```{r}
+grps<-cutree(hc,h=8)
+grps
+```
+
+Now plot hclust() results
+
+```{r}
+plot(x,col=grps)
+```
+
+
+
+
+
+
+
+
+
+
+# Principal Component Analysis(PCA)
+
+##PCA of UK food data
+
+Read data from website and try a few visualizations
+
+```{r}
+url <- "https://tinyurl.com/UK-foods"
+x <- read.csv(url)
+x
+```
+>Q1. How many rows and columns are in your new data frame named x? What R functions could you use to answer this questions?
+
+>ANS: 17 rows and 5 columns, I can use the dim or nrow and ncol functions.
+
+```{r}
+## Complete the following code to find out how many rows and columns are in x?
+dim(x)
+
+```
+
+
+>Q2. Which approach to solving the ‘row-names problem’ mentioned above do you prefer and why? Is one approach more robust than another under certain circumstances?
+
+>Ans: I prefer using row.names=1. x <- x[,-1] on repeat deletes the first column again and again into the dataset. 
+
+```{r}
+url <- "https://tinyurl.com/UK-foods"
+x <- read.csv(url, row.names=1)
+x
+```
+
+
+>Q3: Changing what optional argument in the above barplot() function results in the following plot?
+
+>ANS:delete the beside = TRUE
+
+```{r}
+cols<-rainbow(nrow(x))
+barplot(as.matrix(x),col=cols,beside=TRUE)
+```
+```{r}
+cols<-rainbow(nrow(x))
+barplot(as.matrix(x),col=cols)
+```
+
+
+>Q5: Generating all pairwise plots may help somewhat. Can you make sense of the following code and resulting figure? What does it mean if a given point lies on the diagonal for a given plot?  
+
+>ANS: "pairs(x)" makes the pairwise plots between each two different countries. If the point lies on the diagnol, it means that the two countries consume around the same amount for that specific food. If the point shifts to the top, it means the country on the y axis eats more of that food. If it shifts to the right, the country on the x axis consumes more of that food. 
+
+```{r}
+pairs(x, col=cols, pch=16)
+```
+
+
+>Q6. What is the main differences between N. Ireland and the other countries of the UK in terms of this data-set?
+
+>ANS: North Ireland does not have a good diagnol. They eat foods at different distribution compared to other countries.  
+
+
+
+We need PCA for better visualizaton.
+The main base R PCA function is called "prcomp()". We need to fist transpose our input data.
+```{r}
+pca<-prcomp(t(x))
+summary(pca)
+```
+
+
+>Q7. Complete the code below to generate a plot of PC1 vs PC2. The second line adds text labels over the data points.
+
+```{r}
+plot(pca$x[,1],pca$x[,2])
+text(pca$x[,1],pca$x[,2], colnames(x))
+```
+
+
+>Q8. Customize your plot so that the colors of the country names match the colors in our UK and Ireland map and table at start of this document.
+
+```{r}
+country_cols<-c("orange","red","blue","green")
+plot(pca$x[,1],pca$x[,2])
+text(pca$x[,1],pca$x[,2], colnames(x),col=country_cols)
+```
+
+
+>Q9: Generate a similar ‘loadings plot’ for PC2. What two food groups feature prominantely and what does PC2 maninly tell us about?
+
+>ANS:Here we see observations (foods) with the largest positive loading scores (soft_drinks) that effectively “push” Scotland to the top.cWe also see observations/foods with high negative scores(fresh_potatoes) that push wales to the bottom. 
+
+```{r}
+## Lets focus on PC2  
+par(mar=c(10, 3, 0.35, 0))
+barplot( pca$rotation[,2], las=2 )
+```
+
+
+>Q10: How many genes and samples are in this data set?
+
+>ANS: 11 samples and 6 genes
+
+
+```{r}
+url2 <- "https://tinyurl.com/expression-CSV"
+rna.data <- read.csv(url2, row.names=1)
+head(rna.data)
+```
+
+```{r}
+pca<-prcomp(t(rna.data),scale=TRUE)
+summary(pca)
+```
+
+```{r}
+plot(pca$x[,1],pca$x[,2],xlab="PC1", ylab="PC2")
+text(pca$x[,1],pca$x[,2],colnames(rna.data))
+```
+
