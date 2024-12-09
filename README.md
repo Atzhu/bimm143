@@ -30,6 +30,6 @@ Class 12-[Genome Infomatics](https://github.com/Atzhu/bimm143/blob/main/class12/
 
 Class 13-[Trancriptomics and analysis of RNA-seq](https://github.com/Atzhu/bimm143/blob/main/Class%2013/class-13.md)
 
-Class 14-[Rnq-Seq Analysis MiniProject](https://github.com/Atzhu/bimm143/blob/main/class14/Class14.md)
+Class 14-[Rna-Seq Analysis MiniProject](https://github.com/Atzhu/bimm143/blob/main/class14/Class14.md)
 
 Class 15-[Pertusiss Resurgence](https://github.com/Atzhu/bimm143/blob/main/Class15/Class-15-Pertussis-mini-project.md)
