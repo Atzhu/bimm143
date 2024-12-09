@@ -1,0 +1,306 @@
+## Background
+
+Pertussis(whooping cough)is an highly infectious disease. The CDC tracks
+pertusssis cases numbers per year. Lets have a closer look at this data:
+
+[CDC
+data](https://www.cdc.gov/pertussis/php/surveillance/pertussis-cases-by-year.html?CDC_AAref_Val=https://www.cdc.gov/pertussis/surv-reporting/cases-by-year.html)
+
+> Q1. With the help of the R “addin” package datapasta assign the CDC
+> pertussis case number data to a data frame called cdc and use ggplot
+> to make a plot of cases numbers over time.
+
+We will use the **datapasta** R package to “scrape” this data into R.
+
+    cdc<-data.table::data.table(
+                                   Year = c(1922L,1923L,1924L,1925L,1926L,
+                                            1927L,1928L,1929L,1930L,1931L,1932L,
+                                            1933L,1934L,1935L,1936L,1937L,1938L,
+                                            1939L,1940L,1941L,1942L,1943L,
+                                            1944L,1945L,1946L,1947L,1948L,1949L,
+                                            1950L,1951L,1952L,1953L,1954L,1955L,
+                                            1956L,1957L,1958L,1959L,1960L,
+                                            1961L,1962L,1963L,1964L,1965L,1966L,
+                                            1967L,1968L,1969L,1970L,1971L,1972L,
+                                            1973L,1974L,1975L,1976L,1977L,1978L,
+                                            1979L,1980L,1981L,1982L,1983L,
+                                            1984L,1985L,1986L,1987L,1988L,1989L,
+                                            1990L,1991L,1992L,1993L,1994L,1995L,
+                                            1996L,1997L,1998L,1999L,2000L,
+                                            2001L,2002L,2003L,2004L,2005L,2006L,
+                                            2007L,2008L,2009L,2010L,2011L,2012L,
+                                            2013L,2014L,2015L,2016L,2017L,2018L,
+                                            2019L,2020L,2021L,2022L,2024L),
+           Cases = c(107473,164191,165418,152003,
+                                            202210,181411,161799,197371,166914,
+                                            172559,215343,179135,265269,180518,
+                                            147237,214652,227319,103188,183866,
+                                            222202,191383,191890,109873,133792,
+                                            109860,156517,74715,69479,120718,68687,
+                                            45030,37129,60886,62786,31732,28295,
+                                            32148,40005,14809,11468,17749,
+                                            17135,13005,6799,7717,9718,4810,3285,
+                                            4249,3036,3287,1759,2402,1738,
+                                            1010,2177,2063,1623,1730,1248,1895,
+                                            2463,2276,3589,4195,2823,3450,4157,
+                                            4570,2719,4083,6586,4617,5137,
+                                            7796,6564,7405,7298,7867,7580,9771,
+                                            11647,25827,25616,15632,10454,13278,
+                                            16858,27550,18719,48277,28639,
+                                            32971,20762,17972,18975,15609,18617,
+                                            6124,2116,3044,23544)
+         )
+
+    library(ggplot2)
+    baseplot<-ggplot(cdc) +
+      aes(Year,Cases) +
+      geom_point() +
+      geom_line() +
+      labs(title="Pertussis Cases by Year")
+    baseplot
+
+![](Class-15-Pertussis-mini-project_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+
+> Q2. Using the ggplot geom\_vline() function add lines to your previous
+> plot for the 1946 introduction of the wP vaccine and the 1996 switch
+> to aP vaccine (see example in the hint below). What do you notice?
+
+> Ans: The introduction of the wP vaccine leads to a great decrease in
+> cases from around 200,000 prevaccine era to 1000 cases in 1976. We
+> switched to aP vaccine in 1995. We then see a great increase in 2004
+> to around 26,000 cases.
+
+Add some landmark developments as annotation:
+
+    baseplot+geom_vline(xintercept=1946,col="blue" )+geom_vline(xintercept=1995,col="red" )+geom_vline(xintercept=2020,col="grey" )+geom_vline(xintercept=2003,col="green" )
+
+![](Class-15-Pertussis-mini-project_files/figure-markdown_strict/unnamed-chunk-3-1.png)
+
+> Q3. Describe what happened after the introduction of the aP vaccine?
+> Do you have a possible explanation for the observed trend? The
+> specific date is labeled by the red line. There has been an increase
+> in vaccine cases after the introduction of the aP vaccine. There could
+> be better testing methods(PCR), increased vaccine hesitancy, bacterial
+> evolution, and also that aP is just not as effective as wP.
+
+The actual explanation is simply that aP does not provide better
+immunity compared to wP. This conclusion is generated by cross-country
+analysis. Scientist do not know why. That is the question.
+
+**Key Question**: Why does the aP vaccine induced immunity wane faster
+than that of the wP vaccine?
+
+## The CMI-PB(Computational Models of Immunity Pertusssis Boost) makes available lots of data about the immune response to Pertussis booster vaccine.
+
+Critically, it tracks wP and aP individuals over time to see how their
+immune response changes.
+
+CMI-PB make all their data freely availble via JSOB format tables from
+their database.
+
+    library(jsonlite)
+
+    ## Warning: 程序包'jsonlite'是用R版本4.4.2 来建造的
+
+    subject <- read_json("https://www.cmi-pb.org/api/subject", simplifyVector = TRUE) 
+    head(subject, 3)
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["subject_id"],"name":[1],"type":["int"],"align":["right"]},{"label":["infancy_vac"],"name":[2],"type":["chr"],"align":["left"]},{"label":["biological_sex"],"name":[3],"type":["chr"],"align":["left"]},{"label":["ethnicity"],"name":[4],"type":["chr"],"align":["left"]},{"label":["race"],"name":[5],"type":["chr"],"align":["left"]},{"label":["year_of_birth"],"name":[6],"type":["chr"],"align":["left"]},{"label":["date_of_boost"],"name":[7],"type":["chr"],"align":["left"]},{"label":["dataset"],"name":[8],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"wP","3":"Female","4":"Not Hispanic or Latino","5":"White","6":"1986-01-01","7":"2016-09-12","8":"2020_dataset","_rn_":"1"},{"1":"2","2":"wP","3":"Female","4":"Not Hispanic or Latino","5":"White","6":"1968-01-01","7":"2019-01-28","8":"2020_dataset","_rn_":"2"},{"1":"3","2":"wP","3":"Female","4":"Unknown","5":"White","6":"1983-01-01","7":"2016-10-10","8":"2020_dataset","_rn_":"3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+    nrow(subject)
+
+    ## [1] 172
+
+> Q4. How many aP and wP infancy vaccinated subjects are in the dataset?
+
+    table(subject$infancy_vac)
+
+    ## 
+    ## aP wP 
+    ## 87 85
+
+> Q5. How many Male and Female subjects/patients are in the dataset?
+
+    table(subject$biological_sex)
+
+    ## 
+    ## Female   Male 
+    ##    112     60
+
+> Q6. What is the breakdown of race and biological sex (e.g. number of
+> Asian females, White males etc…)?
+
+    table(subject$race,subject$biological_sex)
+
+    ##                                            
+    ##                                             Female Male
+    ##   American Indian/Alaska Native                  0    1
+    ##   Asian                                         32   12
+    ##   Black or African American                      2    3
+    ##   More Than One Race                            15    4
+    ##   Native Hawaiian or Other Pacific Islander      1    1
+    ##   Unknown or Not Reported                       14    7
+    ##   White                                         48   32
+
+> Q8. Is this represntatitive of the US population? Ans:NO
+
+Lets get more data from CMI-PE:
+
+> Q9. With the help of a faceted boxplot or histogram (see below), do
+> you think these two groups are significantly different?
+
+> They are very different.
+
+> Q9. Complete the code to join specimen and subject tables to make a
+> new merged data frame containing all specimen records along with their
+> associated subject details:
+
+    library(jsonlite)
+    specimen<-read_json("https://www.cmi-pb.org/api/v5/specimen", simplifyVector=TRUE)
+    head(specimen)
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["specimen_id"],"name":[1],"type":["int"],"align":["right"]},{"label":["subject_id"],"name":[2],"type":["int"],"align":["right"]},{"label":["actual_day_relative_to_boost"],"name":[3],"type":["int"],"align":["right"]},{"label":["planned_day_relative_to_boost"],"name":[4],"type":["int"],"align":["right"]},{"label":["specimen_type"],"name":[5],"type":["chr"],"align":["left"]},{"label":["visit"],"name":[6],"type":["int"],"align":["right"]}],"data":[{"1":"1","2":"1","3":"-3","4":"0","5":"Blood","6":"1","_rn_":"1"},{"1":"2","2":"1","3":"1","4":"1","5":"Blood","6":"2","_rn_":"2"},{"1":"3","2":"1","3":"3","4":"3","5":"Blood","6":"3","_rn_":"3"},{"1":"4","2":"1","3":"7","4":"7","5":"Blood","6":"4","_rn_":"4"},{"1":"5","2":"1","3":"11","4":"14","5":"Blood","6":"5","_rn_":"5"},{"1":"6","2":"1","3":"32","4":"30","5":"Blood","6":"6","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+    library(dplyr)
+
+    ## 
+    ## 载入程序包：'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+    meta <- inner_join(specimen, subject)
+
+    ## Joining with `by = join_by(subject_id)`
+
+    dim(meta)
+
+    ## [1] 1503   13
+
+    head(meta)
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["specimen_id"],"name":[1],"type":["int"],"align":["right"]},{"label":["subject_id"],"name":[2],"type":["int"],"align":["right"]},{"label":["actual_day_relative_to_boost"],"name":[3],"type":["int"],"align":["right"]},{"label":["planned_day_relative_to_boost"],"name":[4],"type":["int"],"align":["right"]},{"label":["specimen_type"],"name":[5],"type":["chr"],"align":["left"]},{"label":["visit"],"name":[6],"type":["int"],"align":["right"]},{"label":["infancy_vac"],"name":[7],"type":["chr"],"align":["left"]},{"label":["biological_sex"],"name":[8],"type":["chr"],"align":["left"]},{"label":["ethnicity"],"name":[9],"type":["chr"],"align":["left"]},{"label":["race"],"name":[10],"type":["chr"],"align":["left"]},{"label":["year_of_birth"],"name":[11],"type":["chr"],"align":["left"]},{"label":["date_of_boost"],"name":[12],"type":["chr"],"align":["left"]},{"label":["dataset"],"name":[13],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"1","3":"-3","4":"0","5":"Blood","6":"1","7":"wP","8":"Female","9":"Not Hispanic or Latino","10":"White","11":"1986-01-01","12":"2016-09-12","13":"2020_dataset","_rn_":"1"},{"1":"2","2":"1","3":"1","4":"1","5":"Blood","6":"2","7":"wP","8":"Female","9":"Not Hispanic or Latino","10":"White","11":"1986-01-01","12":"2016-09-12","13":"2020_dataset","_rn_":"2"},{"1":"3","2":"1","3":"3","4":"3","5":"Blood","6":"3","7":"wP","8":"Female","9":"Not Hispanic or Latino","10":"White","11":"1986-01-01","12":"2016-09-12","13":"2020_dataset","_rn_":"3"},{"1":"4","2":"1","3":"7","4":"7","5":"Blood","6":"4","7":"wP","8":"Female","9":"Not Hispanic or Latino","10":"White","11":"1986-01-01","12":"2016-09-12","13":"2020_dataset","_rn_":"4"},{"1":"5","2":"1","3":"11","4":"14","5":"Blood","6":"5","7":"wP","8":"Female","9":"Not Hispanic or Latino","10":"White","11":"1986-01-01","12":"2016-09-12","13":"2020_dataset","_rn_":"5"},{"1":"6","2":"1","3":"32","4":"30","5":"Blood","6":"6","7":"wP","8":"Female","9":"Not Hispanic or Latino","10":"White","11":"1986-01-01","12":"2016-09-12","13":"2020_dataset","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+    titer<-read_json("https://www.cmi-pb.org/api/v5/plasma_ab_titer",simplifyVector=TRUE)
+    head(titer)
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["specimen_id"],"name":[1],"type":["int"],"align":["right"]},{"label":["isotype"],"name":[2],"type":["chr"],"align":["left"]},{"label":["is_antigen_specific"],"name":[3],"type":["lgl"],"align":["right"]},{"label":["antigen"],"name":[4],"type":["chr"],"align":["left"]},{"label":["MFI"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["MFI_normalised"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["unit"],"name":[7],"type":["chr"],"align":["left"]},{"label":["lower_limit_of_detection"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"IgE","3":"FALSE","4":"Total","5":"1110.21154","6":"2.493425","7":"UG/ML","8":"2.096133","_rn_":"1"},{"1":"1","2":"IgE","3":"FALSE","4":"Total","5":"2708.91616","6":"2.493425","7":"IU/ML","8":"29.170000","_rn_":"2"},{"1":"1","2":"IgG","3":"TRUE","4":"PT","5":"68.56614","6":"3.736992","7":"IU/ML","8":"0.530000","_rn_":"3"},{"1":"1","2":"IgG","3":"TRUE","4":"PRN","5":"332.12718","6":"2.602350","7":"IU/ML","8":"6.205949","_rn_":"4"},{"1":"1","2":"IgG","3":"TRUE","4":"FHA","5":"1887.12263","6":"34.050956","7":"IU/ML","8":"4.679535","_rn_":"5"},{"1":"1","2":"IgE","3":"TRUE","4":"ACT","5":"0.10000","6":"1.000000","7":"IU/ML","8":"2.816431","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+> Q10. Now using the same procedure join meta with titer data so we can
+> further analyze this data in terms of time of visit aP/wP, male/female
+> etc.
+
+    abdata <- inner_join(titer, meta)
+
+    ## Joining with `by = join_by(specimen_id)`
+
+    dim(abdata)
+
+    ## [1] 52576    20
+
+> Q11. How many specimens (i.e. entries in abdata) do we have for each
+> isotype?
+
+    table(abdata$isotype)
+
+    ## 
+    ##   IgE   IgG  IgG1  IgG2  IgG3  IgG4 
+    ##  6698  5389 10117 10124 10124 10124
+
+> Q12. What are the different $dataset values in abdata and what do you
+> notice about the number of rows for the most “recent” dataset?
+
+    table(abdata$dataset)
+
+    ## 
+    ## 2020_dataset 2021_dataset 2022_dataset 2023_dataset 
+    ##        31520         8085         7301         5670
+
+> Ans: The most recent dataset has the lowest amount of rows.
+
+    igg <- abdata %>% filter(isotype == "IgG")
+    head(igg)
+
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["specimen_id"],"name":[1],"type":["int"],"align":["right"]},{"label":["isotype"],"name":[2],"type":["chr"],"align":["left"]},{"label":["is_antigen_specific"],"name":[3],"type":["lgl"],"align":["right"]},{"label":["antigen"],"name":[4],"type":["chr"],"align":["left"]},{"label":["MFI"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["MFI_normalised"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["unit"],"name":[7],"type":["chr"],"align":["left"]},{"label":["lower_limit_of_detection"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["subject_id"],"name":[9],"type":["int"],"align":["right"]},{"label":["actual_day_relative_to_boost"],"name":[10],"type":["int"],"align":["right"]},{"label":["planned_day_relative_to_boost"],"name":[11],"type":["int"],"align":["right"]},{"label":["specimen_type"],"name":[12],"type":["chr"],"align":["left"]},{"label":["visit"],"name":[13],"type":["int"],"align":["right"]},{"label":["infancy_vac"],"name":[14],"type":["chr"],"align":["left"]},{"label":["biological_sex"],"name":[15],"type":["chr"],"align":["left"]},{"label":["ethnicity"],"name":[16],"type":["chr"],"align":["left"]},{"label":["race"],"name":[17],"type":["chr"],"align":["left"]},{"label":["year_of_birth"],"name":[18],"type":["chr"],"align":["left"]},{"label":["date_of_boost"],"name":[19],"type":["chr"],"align":["left"]},{"label":["dataset"],"name":[20],"type":["chr"],"align":["left"]}],"data":[{"1":"1","2":"IgG","3":"TRUE","4":"PT","5":"68.56614","6":"3.736992","7":"IU/ML","8":"0.530000","9":"1","10":"-3","11":"0","12":"Blood","13":"1","14":"wP","15":"Female","16":"Not Hispanic or Latino","17":"White","18":"1986-01-01","19":"2016-09-12","20":"2020_dataset","_rn_":"1"},{"1":"1","2":"IgG","3":"TRUE","4":"PRN","5":"332.12718","6":"2.602350","7":"IU/ML","8":"6.205949","9":"1","10":"-3","11":"0","12":"Blood","13":"1","14":"wP","15":"Female","16":"Not Hispanic or Latino","17":"White","18":"1986-01-01","19":"2016-09-12","20":"2020_dataset","_rn_":"2"},{"1":"1","2":"IgG","3":"TRUE","4":"FHA","5":"1887.12263","6":"34.050956","7":"IU/ML","8":"4.679535","9":"1","10":"-3","11":"0","12":"Blood","13":"1","14":"wP","15":"Female","16":"Not Hispanic or Latino","17":"White","18":"1986-01-01","19":"2016-09-12","20":"2020_dataset","_rn_":"3"},{"1":"19","2":"IgG","3":"TRUE","4":"PT","5":"20.11607","6":"1.096366","7":"IU/ML","8":"0.530000","9":"3","10":"-3","11":"0","12":"Blood","13":"1","14":"wP","15":"Female","16":"Unknown","17":"White","18":"1983-01-01","19":"2016-10-10","20":"2020_dataset","_rn_":"4"},{"1":"19","2":"IgG","3":"TRUE","4":"PRN","5":"976.67419","6":"7.652635","7":"IU/ML","8":"6.205949","9":"3","10":"-3","11":"0","12":"Blood","13":"1","14":"wP","15":"Female","16":"Unknown","17":"White","18":"1983-01-01","19":"2016-10-10","20":"2020_dataset","_rn_":"5"},{"1":"19","2":"IgG","3":"TRUE","4":"FHA","5":"60.76626","6":"1.096457","7":"IU/ML","8":"4.679535","9":"3","10":"-3","11":"0","12":"Blood","13":"1","14":"wP","15":"Female","16":"Unknown","17":"White","18":"1983-01-01","19":"2016-10-10","20":"2020_dataset","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+
+> Q13. Complete the following code to make a summary boxplot of Ab titer
+> levels (MFI) for all antigens:
+
+    library(ggplot2)
+    ggplot(igg) +
+      aes(MFI, antigen) +
+      geom_boxplot() + 
+        xlim(0,75) +
+      facet_wrap(vars(visit), nrow=2)
+
+    ## Warning: Removed 4475 rows containing non-finite outside the scale range
+    ## (`stat_boxplot()`).
+
+![](Class-15-Pertussis-mini-project_files/figure-markdown_strict/unnamed-chunk-16-1.png)
+
+> Q14. What antigens show differences in the level of IgG antibody
+> titers recognizing them over time? Why these and not others?
+
+> Ans: All antigens show that IgG antibodies fail to recognize them
+> overtime. For example. For Fim2/3, both aP and wP fail to have IgG
+> antibodies detect them overtime. However, in the case of pertussis
+> toxin, the wP create IgG levels with longer time of detection.
+
+    ggplot(igg) +
+      aes(MFI_normalised, antigen, col=infancy_vac ) +
+      geom_boxplot(show.legend = FALSE) + 
+      facet_wrap(vars(visit), nrow=2) +
+      xlim(0,75) +
+      theme_bw()
+
+    ## Warning: Removed 5 rows containing non-finite outside the scale range
+    ## (`stat_boxplot()`).
+
+![](Class-15-Pertussis-mini-project_files/figure-markdown_strict/unnamed-chunk-17-1.png)
+
+    igg %>% filter(visit != 8) %>%
+    ggplot() +
+      aes(MFI_normalised, antigen, col=infancy_vac ) +
+      geom_boxplot(show.legend = FALSE) + 
+      xlim(0,75) +
+      facet_wrap(vars(infancy_vac, visit), nrow=2)
+
+    ## Warning: Removed 5 rows containing non-finite outside the scale range
+    ## (`stat_boxplot()`).
+
+![](Class-15-Pertussis-mini-project_files/figure-markdown_strict/unnamed-chunk-18-1.png)
+
+    abdata.21 <- abdata %>% filter(dataset == "2021_dataset")
+
+    abdata.21 %>% 
+      filter(isotype == "IgG",  antigen == "PT") %>%
+      ggplot() +
+        aes(x=planned_day_relative_to_boost,
+            y=MFI_normalised,
+            col=infancy_vac,
+            group=subject_id) +
+        geom_point() +
+        geom_line() +
+        geom_vline(xintercept=0, linetype="dashed") +
+        geom_vline(xintercept=14, linetype="dashed") +
+      labs(title="2021 dataset IgG PT",
+           subtitle = "Dashed lines indicate day 0 (pre-boost) and 14 (apparent peak levels)")
+
+![](Class-15-Pertussis-mini-project_files/figure-markdown_strict/unnamed-chunk-19-1.png)
+
+\`
